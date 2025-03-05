@@ -1,37 +1,25 @@
+let userClickedSort = false; // Flag to track if the user clicked the sort button
+
 function waitForElement(selector, callback) {
-    const checkElement = () => {
-        const element = document.querySelector(selector);
-        if (element && !document.querySelector("#sort-button")) { // Avoid duplicate buttons
-            callback(element);
-            return true;
-        }
-        return false;
-    };
+  const checkElement = () => {
+    const element = document.querySelector(selector);
+    if (element && !document.querySelector(".sorter-button")) {
+      // Avoid duplicate buttons
+      callback(element);
+      return true;
+    }
+    return false;
+  };
 
-    // Check immediately in case element is already there
-    if (checkElement()) return;
-
-    // Fallback: Check every 500ms in case MutationObserver fails
-    const intervalId = setInterval(() => {
-        if (checkElement()) clearInterval(intervalId);
-    }, 500);
-
-    // Use MutationObserver to detect dynamic changes
-    const observer = new MutationObserver(() => {
-        if (checkElement()) {
-            observer.disconnect();
-            clearInterval(intervalId);
-        }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
+  // Check immediately in case element is already there
+  if (checkElement()) return;
 }
 
 function observePageChanges() {
-  let lastUrl = location.href;
-  setInterval(() => {
-    if (location.href !== lastUrl) {
-      lastUrl = location.href;
+  setInterval(() => {    
+    const button = document.querySelector(".sorter-button"); // Look for the sort button
+    if (!button) {
+      userClickedSort = false;
       waitForElement("#start-items", createSortButton);
     }
   }, 1000); // Check every second for navigation changes
@@ -72,12 +60,13 @@ function sortItems() {
 function createSortButton() {
   // Create a button element with the specified classes
   const button = document.createElement("ytmusic-chip-cloud-chip-renderer");
-  button.classList.add("style-scope", "ytmusic-chip-cloud-renderer");
+  button.classList.add("style-scope", "ytmusic-chip-cloud-renderer", "sorter-button");
   button.setAttribute("chip-style", "STYLE_UNKNOWN");
 
   // Add click event listener to the button
   button.addEventListener("click", () => {
-    sortItems(); // Call sortItems when the button is clicked
+    userClickedSort = true; // Set flag to true when user clicks the button;
+    sortItems();
   });
 
   // Append the button to the body or any other container (e.g., #content)
@@ -105,10 +94,11 @@ window.addEventListener("scroll", () => {
   // Check if we are near the bottom of the page
   if (scrollPosition >= documentHeight - 100) {
     // 100px from bottom
-    sortItems();
+    if (userClickedSort) {
+      sortItems();
+    }
   }
 });
 
 // Initial setup
-waitForElement("#start-items", createSortButton);
 observePageChanges();
