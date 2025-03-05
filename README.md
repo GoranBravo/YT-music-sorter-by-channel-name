@@ -11,3 +11,4 @@ The extension is now installed!
 Usage:
 Open YouTube Music (https://music.youtube.com/library).
 Click the "Channel" button to arrange albums/playlist alphabetically by channel name.
+It will not sort albums/playlists that are not yet loaded, but scrolling to the bottom of the page or clicking the button again will automatically sort them.
