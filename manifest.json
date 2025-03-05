@@ -1,0 +1,20 @@
+{
+  "name": "Youtube Music Sorter",
+  "manifest_version": 3,
+  "version": "1.0",
+  "description": "Sort Youtube Music Library",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": [
+    "https://music.youtube.com/library/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://music.youtube.com/library",
+        "https://music.youtube.com/library/*"
+      ],
+      "js": ["app.js"],
+      "run_at": "document_end"
+    }
+  ]
+}
