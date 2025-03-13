@@ -16,7 +16,7 @@ function waitForElement(selector, callback) {
 }
 
 function observePageChanges() {
-  setInterval(() => {    
+  setInterval(() => {
     const button = document.querySelector(".sorter-button"); // Look for the sort button
     if (!button) {
       userClickedSort = false;
@@ -41,15 +41,38 @@ function sortItems() {
     return;
   }
 
-  // Sort items based on the link text in <a>
+  // Sort items based on title first and then year
   items.sort((a, b) => {
+    // Get the text inside the <a> tag
     const linkA =
       a.querySelector("div span yt-formatted-string a")?.textContent?.trim() ||
       "";
     const linkB =
       b.querySelector("div span yt-formatted-string a")?.textContent?.trim() ||
       "";
-    return linkA.localeCompare(linkB);
+
+    // Get the last child (span) inside yt-formatted-string for the year
+    const yearA = parseInt(
+      a
+        .querySelector("yt-formatted-string span:last-child")
+        ?.textContent?.trim() || "0",
+      10
+    );
+    const yearB = parseInt(
+      b
+        .querySelector("yt-formatted-string span:last-child")
+        ?.textContent?.trim() || "0",
+      10
+    );
+
+    // First, sort alphabetically by title
+    const titleComparison = linkA.localeCompare(linkB);
+    if (titleComparison !== 0) {
+      return titleComparison;
+    }
+
+    // If titles are the same, sort by year (descending order)
+    return yearB - yearA;
   });
 
   // Reappend the sorted items back into the container
@@ -60,7 +83,11 @@ function sortItems() {
 function createSortButton() {
   // Create a button element with the specified classes
   const button = document.createElement("ytmusic-chip-cloud-chip-renderer");
-  button.classList.add("style-scope", "ytmusic-chip-cloud-renderer", "sorter-button");
+  button.classList.add(
+    "style-scope",
+    "ytmusic-chip-cloud-renderer",
+    "sorter-button"
+  );
   button.setAttribute("chip-style", "STYLE_UNKNOWN");
 
   // Add click event listener to the button
