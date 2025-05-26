@@ -23,6 +23,8 @@ function observePageChanges() {
       if (!bullshitSearchRemoved) {
         try {
           const aiBullshitSearch = document.getElementById("Odp5De");
+          const aiBullshitSearch2 = document.getElementById("tvcap");
+          aiBullshitSearch2.remove();
           aiBullshitSearch.remove();
           bullshitSearchRemoved = true;
         } catch {}
