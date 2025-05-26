@@ -16,11 +16,33 @@ function waitForElement(selector, callback) {
 }
 
 function observePageChanges() {
+  let bullshitRemoved = false;
+  let bullshitSearchRemoved = false;
   setInterval(() => {
-    const button = document.querySelector(".sorter-button"); // Look for the sort button
-    if (!button) {
-      userClickedSort = false;
-      waitForElement("#start-items", createSortButton);
+    if (window.location.href.includes("https://www.google.com")) {
+      if (!bullshitSearchRemoved) {
+        try {
+          const aiBullshitSearch = document.getElementById("Odp5De");
+          aiBullshitSearch.remove();
+          bullshitSearchRemoved = true;
+        } catch {}
+      }
+    }
+    if (window.location.href.includes("https://www.youtube.com")) {
+      if (!bullshitRemoved) {
+        try {
+          const aiBullshit1 = document.getElementById("expandable-metadata");
+          aiBullshit1.remove();
+          bullshitRemoved = true;
+        } catch {}
+      }
+    }
+    if (window.location.href.includes("https://music.youtube.com")) {
+      const button = document.querySelector(".sorter-button"); // Look for the sort button
+      if (!button) {
+        userClickedSort = false;
+        waitForElement("#start-items", createSortButton);
+      }
     }
   }, 1000); // Check every second for navigation changes
 }

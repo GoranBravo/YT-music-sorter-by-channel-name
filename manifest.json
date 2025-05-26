@@ -3,11 +3,16 @@
   "manifest_version": 3,
   "version": "1.1",
   "description": "Sort Youtube Music Library",
-  "permissions": ["activeTab", "tabs"],
+  "permissions": ["activeTab", "tabs", "scripting"],
   "content_scripts": [
     {
-      "matches": ["https://music.youtube.com/*"],
+      "matches": [
+        "https://music.youtube.com/*",
+        "https://www.youtube.com/*",
+        "https://www.google.com/*"
+      ],
       "js": ["app.js"]
     }
-  ]
+  ],
+  "host_permissions": ["https://www.google.com/*"]
 }
