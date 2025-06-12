@@ -22,7 +22,10 @@ function observePageChanges() {
     if (window.location.href.includes("https://www.google.com")) {
       if (!bullshitSearchRemoved) {
         try {
-          const aiBullshitSearch = document.getElementById("Odp5De");
+          // Get the h2 element
+          const h2Element = document.querySelector("h2.VW3apb");
+          // Find the closest parent with the class ULSxyf
+          const aiBullshitSearch = h2Element?.closest(".Wm5I1e");
           const aiBullshitSearch2 = document.getElementById("tvcap");
           aiBullshitSearch2.remove();
           aiBullshitSearch.remove();
