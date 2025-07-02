@@ -23,7 +23,7 @@ function observePageChanges() {
       if (!bullshitSearchRemoved) {
         try {
           // Get the h2 element
-          const h2Element = document.querySelector("h2.VW3apb");
+          const h2Element = document.querySelector(".VW3apb");
           // Find the closest parent with the class ULSxyf
           const aiBullshitSearch = h2Element?.closest(".Wm5I1e");
           const aiBullshitSearch2 = document.getElementById("tvcap");
