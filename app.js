@@ -25,7 +25,7 @@ function observePageChanges() {
           // Get the h2 element
           const h2Element = document.querySelector(".VW3apb");
           // Find the closest parent with the class ULSxyf
-          const aiBullshitSearch = h2Element?.closest(".Wm5I1e");
+          const aiBullshitSearch = h2Element?.closest("#Odp5De");
           const aiBullshitSearch2 = document.getElementById("tvcap");
           aiBullshitSearch2.remove();
           aiBullshitSearch.remove();
