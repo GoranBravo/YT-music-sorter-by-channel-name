@@ -27,6 +27,8 @@ function observePageChanges() {
           // Find the closest parent with the class ULSxyf
           const aiBullshitSearch = h2Element?.closest("#Odp5De");
           const aiBullshitSearch2 = document.getElementById("eKIzJc");
+          const aiBullshitSearch3 = document.querySelector('.olrp5b');
+          aiBullshitSearch3.remove();
           aiBullshitSearch2.remove();
           aiBullshitSearch.remove();
           bullshitSearchRemoved = true;
