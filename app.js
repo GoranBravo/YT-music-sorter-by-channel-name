@@ -35,7 +35,7 @@ function removeGoogleAIContent() {
   safeRemove("#Odp5De");
   safeRemove("#eKIzJc");
   safeRemove(".olrp5b");
-  safeRemove("#taw");
+  safeRemove("#tvcap");
 }
 
 function removeYouTubeMetadata() {
