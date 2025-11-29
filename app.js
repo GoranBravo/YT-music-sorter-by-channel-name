@@ -1,6 +1,5 @@
 // --- CONFIGURATION & GLOBALS ---
 let userClickedSort = false; // Flag to re-sort when user scrolls to bottom
-let fullLoaded = false; // Flag to stop sorting when tha page is full loaded
 
 // --- UTILS ---
 
@@ -146,11 +145,6 @@ function createSortButton() {
 
 window.addEventListener("scroll", () => {
   if (!userClickedSort) return;
-  if (fullLoaded) return;
-  const documentHeight = document.documentElement.scrollHeight;
-  const scrollPosition = window.scrollY + window.innerHeight;
-
-  if (scrollPosition >= documentHeight - 100) fullLoaded = true;
   sortItems();
 });
 
