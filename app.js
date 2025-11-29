@@ -1,49 +1,33 @@
-let userClickedSort = false; // Flag to track if the user clicked the sort button
+// --- CONFIGURATION & GLOBALS ---
+let userClickedSort = false; // Flag to re-sort when user scrolls to bottom
+let fullLoaded = false; // Flag to stop sorting when tha page is full loaded
 
-function waitForElement(selector, callback) {
-  const checkElement = () => {
-    const element = document.querySelector(selector);
-    if (element && !document.querySelector(".sorter-button")) {
-      // Avoid duplicate buttons
-      callback(element);
-      return true;
-    }
-    return false;
-  };
+// --- UTILS ---
 
-  // Check immediately in case element is already there
-  if (checkElement()) return;
+/** Observes DOM changes on a target selector and runs callback */
+function observeDOM(targetSelector, callback) {
+  const target = document.querySelector(targetSelector);
+  if (!target) return;
+
+  const observer = new MutationObserver(callback);
+  observer.observe(target, { childList: true, subtree: true });
+
+  // Run once immediately (in case DOM is already ready)
+  callback();
 }
 
-function observePageChanges() {
-  setInterval(() => {
-    const button = document.querySelector(".sorter-button"); // Look for the sort button
-    if (!button) {
-      userClickedSort = false;
-      waitForElement("#start-items", createSortButton);
-    }
-  }, 1000); // Check every second for navigation changes
-}
+// --- SORTING LOGIC ---
 
 function sortItems() {
   const itemsContainer = document.querySelector("#content #items");
+  if (!itemsContainer) return;
 
-  if (!itemsContainer) {
-    return;
-  }
-
-  // Get all items inside #items container
   const items = Array.from(
     itemsContainer.querySelectorAll("ytmusic-two-row-item-renderer")
   );
+  if (!items.length) return;
 
-  if (items.length === 0) {
-    return;
-  }
-
-  // Sort items based on title first and then year
   items.sort((a, b) => {
-    // Get the text inside the <a> tag
     const linkA =
       a.querySelector("div span yt-formatted-string a")?.textContent?.trim() ||
       "";
@@ -51,56 +35,72 @@ function sortItems() {
       b.querySelector("div span yt-formatted-string a")?.textContent?.trim() ||
       "";
 
-    // Get the last child (span) inside yt-formatted-string for the year
-    const yearA = parseInt(
+    const yearA = Number.parseInt(
       a
         .querySelector("yt-formatted-string span:last-child")
         ?.textContent?.trim() || "0",
       10
     );
-    const yearB = parseInt(
+    const yearB = Number.parseInt(
       b
         .querySelector("yt-formatted-string span:last-child")
         ?.textContent?.trim() || "0",
       10
     );
 
-    // First, sort alphabetically by title
-    const titleComparison = linkA.localeCompare(linkB);
-    if (titleComparison !== 0) {
-      return titleComparison;
-    }
+    // First, sort alphabetically
+    const titleComparison = linkA.localeCompare(linkB, undefined, {
+      sensitivity: "base",
+    });
+    if (titleComparison !== 0) return titleComparison;
 
-    // If titles are the same, sort by year (descending order)
+    // Then by year (descending)
     return yearB - yearA;
   });
 
-  // Reappend the sorted items back into the container
-  items.forEach((item) => itemsContainer.appendChild(item));
+  // Reflow-safe re-insertion
+  const fragment = document.createDocumentFragment();
+  items.forEach((item) => fragment.appendChild(item));
+  itemsContainer.appendChild(fragment);
 }
 
-// Function to create the manual sorting button
+// --- SORT BUTTON CREATION ---
+
+function createSortButtonOnce() {
+  if (document.querySelector(".sorter-button")) return;
+  createSortButton();
+}
+
 function createSortButton() {
-  // Create a button element with the specified classes
+  const container = document.querySelector("#chips");
+  if (!container) return;
+
+  // find one existing chip
+  const existingChip = container.querySelector(
+    "ytmusic-chip-cloud-chip-renderer"
+  );
+
+  // read its chip-style value (if it exists)
+  const originalStyle = existingChip?.getAttribute("chip-style") || "STYLE_UNKNOWN";
+
+  // create the new chip
   const button = document.createElement("ytmusic-chip-cloud-chip-renderer");
   button.classList.add(
     "style-scope",
     "ytmusic-chip-cloud-renderer",
     "sorter-button"
   );
-  button.setAttribute("chip-style", "STYLE_UNKNOWN");
 
-  // Add click event listener to the button
+  // replace chip-style with originalStyle
+  button.setAttribute("chip-style", originalStyle);
+
   button.addEventListener("click", () => {
-    userClickedSort = true; // Set flag to true when user clicks the button;
+    userClickedSort = true;
+    button.setAttribute("is-selected", true)
     sortItems();
   });
 
-  // Append the button to the body or any other container (e.g., #content)
-  const container = document.querySelector("#chips"); // Or wherever you'd like the button to appear
-  if (container) {
-    container.appendChild(button);
-  }
+  container.appendChild(button);
 
   const insideButton = button.querySelector("a");
 
@@ -114,18 +114,22 @@ function createSortButton() {
   insideButton.appendChild(textButton);
 }
 
+// --- SCROLL RE-SORT ---
+
 window.addEventListener("scroll", () => {
+  if (!userClickedSort) return;
+  if (fullLoaded) return;
   const documentHeight = document.documentElement.scrollHeight;
   const scrollPosition = window.scrollY + window.innerHeight;
 
-  // Check if we are near the bottom of the page
-  if (scrollPosition >= documentHeight - 100) {
-    // 100px from bottom
-    if (userClickedSort) {
-      sortItems();
-    }
-  }
+  if (scrollPosition >= documentHeight - 100) fullLoaded = true;
+  sortItems();
 });
 
-// Initial setup
-observePageChanges();
+// --- MAIN OBSERVER ---
+
+observeDOM("body", () => {
+  if (location.hostname === "music.youtube.com") {
+    createSortButtonOnce();
+  }
+});
