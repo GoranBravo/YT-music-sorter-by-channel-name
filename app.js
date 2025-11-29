@@ -1,5 +1,6 @@
 // --- CONFIGURATION & GLOBALS ---
 let userClickedSort = false; // Flag to re-sort when user scrolls to bottom
+let fullLoaded = false; // Flag to stop sorting when tha page is full loaded
 
 // --- UTILS ---
 
@@ -62,13 +63,13 @@ function sortItems() {
       b.querySelector("div span yt-formatted-string a")?.textContent?.trim() ||
       "";
 
-    const yearA = parseInt(
+    const yearA = Number.parseInt(
       a
         .querySelector("yt-formatted-string span:last-child")
         ?.textContent?.trim() || "0",
       10
     );
-    const yearB = parseInt(
+    const yearB = Number.parseInt(
       b
         .querySelector("yt-formatted-string span:last-child")
         ?.textContent?.trim() || "0",
@@ -76,7 +77,9 @@ function sortItems() {
     );
 
     // First, sort alphabetically
-    const titleComparison = linkA.localeCompare(linkB);
+    const titleComparison = linkA.localeCompare(linkB, undefined, {
+      sensitivity: "base",
+    });
     if (titleComparison !== 0) return titleComparison;
 
     // Then by year (descending)
@@ -100,21 +103,33 @@ function createSortButton() {
   const container = document.querySelector("#chips");
   if (!container) return;
 
-  // Using a proper button for better resilience
+  // find one existing chip
+  const existingChip = container.querySelector(
+    "ytmusic-chip-cloud-chip-renderer"
+  );
+
+  // read its chip-style value (if it exists)
+  const originalStyle = existingChip?.getAttribute("chip-style") || "STYLE_UNKNOWN";
+
+  // create the new chip
   const button = document.createElement("ytmusic-chip-cloud-chip-renderer");
   button.classList.add(
     "style-scope",
     "ytmusic-chip-cloud-renderer",
     "sorter-button"
   );
-  button.setAttribute("chip-style", "STYLE_UNKNOWN");
+
+  // replace chip-style with originalStyle
+  button.setAttribute("chip-style", originalStyle);
 
   button.addEventListener("click", () => {
     userClickedSort = true;
+    button.setAttribute("is-selected", true)
     sortItems();
   });
 
   container.appendChild(button);
+
   const insideButton = button.querySelector("a");
 
   const textButton = document.createElement("div");
@@ -131,13 +146,12 @@ function createSortButton() {
 
 window.addEventListener("scroll", () => {
   if (!userClickedSort) return;
-
+  if (fullLoaded) return;
   const documentHeight = document.documentElement.scrollHeight;
   const scrollPosition = window.scrollY + window.innerHeight;
 
-  if (scrollPosition >= documentHeight - 100) {
-    sortItems();
-  }
+  if (scrollPosition >= documentHeight - 100) fullLoaded = true;
+  sortItems();
 });
 
 // --- MAIN OBSERVER ---
